@@ -2,16 +2,28 @@ shader_type canvas_item;
 
 // ASCII post-process shader for the Dokkaebi game.
 // The TextureRect this material is on shows the 3D SubViewport.
-// Each screen cell (cell_size_px x cell_size_px) is replaced by one
-// ASCII character from ascii_atlas.png, chosen by the cell's brightness.
-// The atlas holds 10 characters in one row, left to right:
-//   " "  "."  ":"  "-"  "="  "+"  "*"  "#"  "%"  "@"
-// (darkest -> brightest). The glyph is white-on-black, so multiplying
-// the original colour by the glyph keeps the green grass / orange
-// lights tinted correctly.
+// Each screen cell (cell_size_px x cell_size_px, 12px) is replaced by
+// one ASCII character from ascii_atlas.png, chosen by the cell's
+// brightness. The atlas holds 10 glyphs in one row, left to right,
+// in order of measured ink coverage (darkest -> brightest):
+//   " "  "."  ":"  "+"  "*"  "o"  "%"  "#"  "M"  "@"
+// The old ramp " .:-=+*#%@" was NOT monotonic in this font ('-' had
+// fewer ink pixels than ':', '%' fewer than '#'), so brighter cells
+// could pick a sparser glyph and the ASCII look collapsed. The new
+// ramp is verified monotonic by tools/make_atlas.py — do not change
+// the order without re-measuring.
+//
+// Why the old look failed: the scene was very dark (most cells had
+// luminance 0.05-0.2), so the raw luminance mapped to index 0-2 only.
+// The fix is twofold: the shader now boosts luminance
+// (pow(lum, 0.65) * 1.4) so mid-tones reach mid characters, and the
+// scene lighting was brightened so the luminance range actually
+// covers the full ramp. Glyph strokes are bright and tinted by the
+// original colour; cell backgrounds are near-black, so characters
+// read clearly instead of washing out into the original image.
 
 uniform sampler2D ascii_atlas;
-uniform float cell_size_px = 8.0;
+uniform float cell_size_px = 12.0;
 uniform bool ascii_enabled = true;
 
 void fragment() {
@@ -25,13 +37,18 @@ void fragment() {
 		COLOR = col;
 	} else {
 		float lum = dot(col.rgb, vec3(0.299, 0.587, 0.114));
-		float idx = clamp(floor(lum * 10.0), 0.0, 9.0);
+		// Lift the dark scene into the full ramp: gamma-lift the
+		// shadows, then scale so a mid-bright cell (~0.35) lands
+		// around the middle of the ramp instead of near the bottom.
+		float boosted = clamp(pow(lum, 0.65) * 1.4, 0.0, 1.0);
+		float idx = clamp(floor(boosted * 10.0), 0.0, 9.0);
 		vec2 local_uv = fract(UV * cells);
 		vec2 glyph_uv = vec2((idx + local_uv.x) / 10.0, local_uv.y);
 		vec4 glyph = texture(ascii_atlas, glyph_uv);
-		// glyph.r is 1 on the strokes, 0 elsewhere. Keep a little of the
-		// original colour so very dark cells are not pure black.
-		float mask = clamp(glyph.r * 0.9 + 0.08, 0.0, 1.0);
-		COLOR = vec4(col.rgb * mask, 1.0);
+		// Stroke bright, background near-black: glyphs pop instead
+		// of blending back into the plain 3D image.
+		float mask = clamp(0.05 + glyph.r, 0.0, 1.0);
+		vec3 ascii_col = clamp(col.rgb * 1.3 * mask, 0.0, 1.0);
+		COLOR = vec4(ascii_col, 1.0);
 	}
 }

@@ -9,16 +9,16 @@
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
-background_color = Color(0.02, 0.03, 0.05, 1)
+background_color = Color(0.05, 0.07, 0.1, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.35, 0.4, 0.45, 1)
-ambient_light_energy = 0.8
+ambient_light_color = Color(0.55, 0.6, 0.65, 1)
+ambient_light_energy = 1.4
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
 size = Vector2(70, 70)
 
 [sub_resource type="StandardMaterial3D" id="Mat_ground"]
-albedo_color = Color(0.05, 0.22, 0.08, 1)
+albedo_color = Color(0.08, 0.38, 0.14, 1)
 roughness = 1.0
 
 [sub_resource type="CapsuleShape3D" id="Capsule_player"]
@@ -30,7 +30,7 @@ viewport_path = NodePath("SubViewport")
 
 [sub_resource type="ShaderMaterial" id="ShaderMat_ascii"]
 shader = ExtResource("5_ascii")
-shader_parameter/cell_size_px = 8.0
+shader_parameter/cell_size_px = 12.0
 shader_parameter/ascii_enabled = true
 shader_parameter/ascii_atlas = ExtResource("6_atlas")
 
@@ -49,7 +49,7 @@ environment = SubResource("Environment_main")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="SubViewport/World"]
 transform = Transform3D(0.877583, -0.479426, 0, 0, 0.479426, 0.877583, 0, 0, 1, 0, 8, 0)
 light_color = Color(1, 0.95, 0.85, 1)
-light_energy = 0.9
+light_energy = 1.6
 shadow_enabled = false
 
 [node name="Ground" type="MeshInstance3D" parent="SubViewport/World"]

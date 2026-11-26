@@ -28,7 +28,7 @@ func _ready() -> void:
 	body_mesh.radius = 0.55
 	body_mesh.height = 1.1
 	_body.mesh = body_mesh
-	_body.material_override = _mat(Color(0.14, 0.05, 0.24))
+	_body.material_override = _mat(Color(0.24, 0.09, 0.42))
 	_body.position = Vector3(0, 0.75, 0)
 	_body.scale = Vector3(1.0, 1.25, 1.0)
 	add_child(_body)
@@ -40,7 +40,7 @@ func _ready() -> void:
 		horn_mesh.bottom_radius = 0.12
 		horn_mesh.height = 0.45
 		horn.mesh = horn_mesh
-		horn.material_override = _mat(Color(0.1, 0.04, 0.18))
+		horn.material_override = _mat(Color(0.2, 0.08, 0.32))
 		horn.position = Vector3(sx, 1.45, 0)
 		horn.rotation.z = -0.35 * sign(sx)
 		add_child(horn)

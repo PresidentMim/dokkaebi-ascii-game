@@ -52,7 +52,7 @@ func _ready() -> void:
 	brim_mesh.bottom_radius = 0.85
 	brim_mesh.height = 0.06
 	brim.mesh = brim_mesh
-	brim.material_override = _mat(Color(0.05, 0.05, 0.06))
+	brim.material_override = _mat(Color(0.14, 0.14, 0.16))
 	brim.position = Vector3(0, 2.08, 0)
 	add_child(brim)
 	var hat_top := MeshInstance3D.new()
@@ -61,7 +61,7 @@ func _ready() -> void:
 	hat_mesh.bottom_radius = 0.48
 	hat_mesh.height = 0.38
 	hat_top.mesh = hat_mesh
-	hat_top.material_override = _mat(Color(0.08, 0.08, 0.09))
+	hat_top.material_override = _mat(Color(0.18, 0.18, 0.2))
 	hat_top.position = Vector3(0, 2.28, 0)
 	add_child(hat_top)
 	# Eyes (front is local -Z).

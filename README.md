@@ -4,7 +4,9 @@ Instagram reel-এর (@ztryfu-র Dokkaebi) মতো ASCII 3D গেমের 
 অন্ধকার মাঠ, লম্বা সবুজ ঘাস, ছোট dokkaebi ক্যারেক্টার (কোরিয়ান টুপি), কমলা জোনাকি —
 পুরো দৃশ্য ASCII character দিয়ে render হয়, এটা আসল shader, কোনো static ছবি না।
 
-Mobile Legends-এর মতো control: বামে virtual joystick, ডানে ATTACK / DASH / BURST button।
+Mobile Legends-এর মতো control: বামে virtual joystick (গাঢ় গোল base + সবুজ knob),
+ডানে বড় গোল ATTACK (কমলা) / DASH (নীল) / BURST (বেগুনি) button — cooldown-এ button
+অন্ধকার হয়ে সেকেন্ড দেখায়। উপরে গাঢ় top bar-এ Score, Wave, HP bar।
 Camera উপর থেকে ৫৫ ডিগ্রি angle-এ, ক্যারেক্টার পুরো দেখা যায়, camera player-কে follow করে।
 
 ## গেমপ্লে
@@ -105,7 +107,9 @@ scripts/
 shaders/
   ascii.gdshader         আসল ASCII shader (cell -> brightness -> character)
 assets/
-  ascii_atlas.png        ASCII atlas, 10টি character: " .:-=+*#%@"
+  ascii_atlas.png        ASCII atlas, 240x24, 10টি character: " .:+*o%#M@" (মাপা monotonic ramp)
+tools/
+  make_atlas.py          Atlas বানানোর script — ramp monotonic কিনা check করে
 export_presets.cfg       Android (com.mim.dokkaebi, SDK 24/34) + Windows Desktop
 icon.svg                 Game icon
 .gitignore               .godot/, *.apk, *.aab, exports/
@@ -116,10 +120,20 @@ icon.svg                 Game icon
 1. 3D world-টা একটা **SubViewport**-এ render হয় (1280x720)।
 2. সেই texture-টা একটা full-screen **TextureRect**-এ দেখানো হয়, যার উপরে
    `ascii.gdshader` বসানো।
-3. Shader প্রত্যেক ৮x৮ pixel cell-এর brightness মেপে atlas থেকে একটা
+3. Shader প্রত্যেক ১২x১২ pixel cell-এর brightness মেপে atlas থেকে একটা
    character বেছে নেয় — অন্ধকারে ` ` / `.`, উজ্জ্বল জায়গায় `#` / `@` —
-   আর আসল রং (সবুজ ঘাস, কমলা আলো) দিয়ে tint করে।
-4. `cell_size_px` বদলালে ASCII-র ঘনত্ব বদলায় (৮ = মাঝারি, ৬ = ঘন, ১২ = হালকা)।
+   আর আসল রং (সবুজ ঘাস, কমলা আলো) দিয়ে tint করে। অন্ধকার scene-এও
+   character দেখা যায় বলে shader brightness-কে boost করে
+   (`pow(lum, 0.65) * 1.4`), আর glyph-এর background প্রায় কালো রাখে।
+4. `cell_size_px` বদলালে ASCII-র ঘনত্ব বদলায় (১২ = বর্তমান, ৮ = ঘন, ১৬ = হালকা)।
+
+> v2 fix: প্রথম version-এ cell ছিল ৮px, atlas-এর glyph পাতলা ছিল, আর
+> scene এত অন্ধকার ছিল যে বেশিরভাগ cell-ই ` ` / `.`-এ ম্যাপ হতো — তাই
+> ASCII প্রায় দেখাই যেত না। আরও বড় সমস্যা: পুরনো ramp `" .:-=+*#%@"`
+> আসলে monotonic ছিল না (মাপা: `-` < `:`, `%` < `#`), তাই উজ্জ্বল cell-ও
+> হালকা glyph পেত। v2-তে cell ১২px, atlas ২৪px/cell-এ bold glyph,
+> brightness boost, scene-এর আলো বাড়ানো, আর মাপা monotonic ramp
+> `" .:+*o%#M@"` ব্যবহার করা হয়েছে।
 
 ## Note on ascii_atlas.png
-`assets/ascii_atlas.png` (895 bytes) is the ASCII character atlas. If it is missing after a Git clone, regenerate it before opening Godot: `python tools/make_atlas.py` (needs Pillow: `pip install pillow`). It recreates the exact 160x16 atlas.
+`assets/ascii_atlas.png` is the ASCII character atlas (240x24 px). If it is missing after a Git clone, regenerate it before opening Godot: `python tools/make_atlas.py` (needs Pillow: `pip install pillow`). The script asserts the ramp is strictly increasing.

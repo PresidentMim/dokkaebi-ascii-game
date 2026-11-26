@@ -66,7 +66,7 @@ func _mat(color: Color, emission: Color = Color(0, 0, 0), energy: float = 0.0) -
 
 
 func _setup_fence() -> void:
-	var mat := _mat(Color(0.25, 0.18, 0.1))
+	var mat := _mat(Color(0.4, 0.3, 0.18))
 	var walls: Array = [
 		[Vector3(0, 0.6, -24.5), Vector3(50, 1.2, 0.6)],
 		[Vector3(0, 0.6, 24.5), Vector3(50, 1.2, 0.6)],
@@ -84,7 +84,7 @@ func _setup_fence() -> void:
 
 
 func _setup_grass() -> void:
-	var mat := _mat(Color(0.1, 0.55, 0.18))
+	var mat := _mat(Color(0.12, 0.75, 0.25))
 	var box := BoxMesh.new()
 	box.size = Vector3(0.09, 1.1, 0.09)
 	box.material = mat
@@ -108,7 +108,7 @@ func _setup_grass() -> void:
 func _setup_firefly_light() -> void:
 	var light := OmniLight3D.new()
 	light.light_color = Color(1.0, 0.55, 0.15)
-	light.light_energy = 0.6
+	light.light_energy = 1.2
 	light.omni_range = 22.0
 	light.position = Vector3(0, 4, 0)
 	_world.add_child(light)

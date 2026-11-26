@@ -29,10 +29,17 @@ func _notification(what: int) -> void:
 
 
 func _draw() -> void:
-	draw_circle(_center, _radius, Color(1, 1, 1, 0.10))
-	draw_arc(_center, _radius, 0.0, TAU, 64, Color(1, 1, 1, 0.35), 2.0)
-	draw_circle(_knob_pos, 38.0, Color(1, 1, 1, 0.28))
-	draw_circle(_knob_pos, 30.0, Color(0.25, 0.65, 0.35, 0.55))
+	# Strong, high-contrast MLBB-style joystick: the old drawing used
+	# alpha 0.10-0.35 fills that vanished against the ASCII background.
+	# Dark base so the ring reads on any background, bright ring and
+	# a solid green knob with a white centre dot.
+	draw_circle(_center, _radius, Color(0.0, 0.0, 0.0, 0.45))
+	draw_circle(_center, _radius, Color(1, 1, 1, 0.22))
+	draw_arc(_center, _radius, 0.0, TAU, 64, Color(1, 1, 1, 0.9), 4.0)
+	draw_arc(_center, _radius * 0.55, 0.0, TAU, 48, Color(1, 1, 1, 0.25), 2.0)
+	draw_circle(_knob_pos, 42.0, Color(1, 1, 1, 0.55))
+	draw_circle(_knob_pos, 34.0, Color(0.2, 0.85, 0.4, 0.95))
+	draw_circle(_knob_pos, 10.0, Color(1, 1, 1, 0.95))
 
 
 func _update_from_local(local_pos: Vector2) -> void:
