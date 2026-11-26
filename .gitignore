@@ -1,0 +1,14 @@
+# Godot
+.godot/
+*.godot
+export_templates/
+# Build outputs
+*.apk
+*.aab
+*.exe
+*.pck
+exports/
+# OS / editor
+.DS_Store
+Thumbs.db
+*.tmp

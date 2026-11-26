@@ -1,0 +1,244 @@
+[gd_scene load_steps=13 format=3 uid="uid://dokkaebi1ascii"]
+
+[ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
+[ext_resource type="Script" path="res://scripts/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/joystick.gd" id="3_joy"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="4_hud"]
+[ext_resource type="Shader" path="res://shaders/ascii.gdshader" id="5_ascii"]
+[ext_resource type="Texture2D" path="res://assets/ascii_atlas.png" id="6_atlas"]
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 1
+background_color = Color(0.02, 0.03, 0.05, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.35, 0.4, 0.45, 1)
+ambient_light_energy = 0.8
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(70, 70)
+
+[sub_resource type="StandardMaterial3D" id="Mat_ground"]
+albedo_color = Color(0.05, 0.22, 0.08, 1)
+roughness = 1.0
+
+[sub_resource type="CapsuleShape3D" id="Capsule_player"]
+radius = 0.5
+height = 1.6
+
+[sub_resource type="ViewportTexture" id="ViewportTex_main"]
+viewport_path = NodePath("SubViewport")
+
+[sub_resource type="ShaderMaterial" id="ShaderMat_ascii"]
+shader = ExtResource("5_ascii")
+shader_parameter/cell_size_px = 8.0
+shader_parameter/ascii_enabled = true
+shader_parameter/ascii_atlas = ExtResource("6_atlas")
+
+[node name="Main" type="Node"]
+script = ExtResource("1_game")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+gui_disable_input = true
+size = Vector2(1280, 720)
+
+[node name="World" type="Node3D" parent="SubViewport"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewport/World"]
+environment = SubResource("Environment_main")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="SubViewport/World"]
+transform = Transform3D(0.877583, -0.479426, 0, 0, 0.479426, 0.877583, 0, 0, 1, 0, 8, 0)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 0.9
+shadow_enabled = false
+
+[node name="Ground" type="MeshInstance3D" parent="SubViewport/World"]
+mesh = SubResource("PlaneMesh_ground")
+material_override = SubResource("Mat_ground")
+
+[node name="Player" type="CharacterBody3D" parent="SubViewport/World"]
+script = ExtResource("2_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SubViewport/World/Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("Capsule_player")
+
+[node name="CameraRig" type="Node3D" parent="SubViewport/World"]
+
+[node name="Camera3D" type="Camera3D" parent="SubViewport/World/CameraRig"]
+transform = Transform3D(1, 0, 0, 0, 0.573576, 0.819152, 0, -0.819152, 0.573576, 0, 16, 11)
+fov = 50.0
+near = 0.1
+far = 100.0
+current = true
+
+[node name="Enemies" type="Node3D" parent="SubViewport/World"]
+
+[node name="Pickups" type="Node3D" parent="SubViewport/World"]
+
+[node name="Grass" type="MultiMeshInstance3D" parent="SubViewport/World"]
+
+[node name="ASCIIOverlay" type="TextureRect" parent="."]
+material = SubResource("ShaderMat_ascii")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("ViewportTex_main")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 10
+script = ExtResource("4_hud")
+
+[node name="TopBar" type="Control" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 64.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="ScoreLabel" type="Label" parent="HUD/TopBar"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 280.0
+offset_bottom = 52.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "SCORE  0"
+
+[node name="WaveLabel" type="Label" parent="HUD/TopBar"]
+offset_left = 300.0
+offset_top = 12.0
+offset_right = 620.0
+offset_bottom = 52.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "WAVE 1    ENEMIES 0"
+
+[node name="HealthBar" type="ProgressBar" parent="HUD/TopBar"]
+anchor_left = 0.62
+anchor_right = 0.82
+offset_top = 14.0
+offset_bottom = 38.0
+grow_horizontal = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="HealthLabel" type="Label" parent="HUD/TopBar"]
+anchor_left = 0.84
+anchor_right = 0.92
+offset_top = 12.0
+offset_bottom = 52.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "HP 100"
+
+[node name="AsciiButton" type="Button" parent="HUD/TopBar"]
+anchor_left = 0.93
+anchor_right = 0.99
+offset_top = 8.0
+offset_bottom = 52.0
+grow_horizontal = 2
+text = "ASCII: ON"
+
+[node name="Controls" type="Control" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Joystick" type="Control" parent="HUD/Controls"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 36.0
+offset_top = -256.0
+offset_right = 256.0
+offset_bottom = -36.0
+grow_vertical = 0
+script = ExtResource("3_joy")
+
+[node name="AttackButton" type="Button" parent="HUD/Controls"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -160.0
+offset_right = -160.0
+offset_bottom = -60.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "ATTACK"
+
+[node name="DashButton" type="Button" parent="HUD/Controls"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -140.0
+offset_top = -160.0
+offset_right = -40.0
+offset_bottom = -60.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "DASH"
+
+[node name="BurstButton" type="Button" parent="HUD/Controls"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -280.0
+offset_right = -160.0
+offset_bottom = -180.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "BURST"
+
+[node name="GameOverPanel" type="Control" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUD/GameOverPanel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -120.0
+offset_right = 180.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+theme_override_colors/font_color = Color(1, 0.3, 0.2, 1)
+theme_override_font_sizes/font_size = 48
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="FinalScoreLabel" type="Label" parent="HUD/GameOverPanel/VBox"]
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "SCORE: 0"
+horizontal_alignment = 1
+
+[node name="RestartButton" type="Button" parent="HUD/GameOverPanel/VBox"]
+custom_minimum_size = Vector2(200, 60)
+theme_override_font_sizes/font_size = 28
+text = "RESTART"
